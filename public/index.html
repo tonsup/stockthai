@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockThai – ข้อมูลหุ้นไทย</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══ NAVBAR ════════════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="nav-brand" id="navBrand">
+    <span class="logo">📈</span>
+    <span>StockThai</span>
+  </div>
+  <div class="search-wrap">
+    <input id="searchInput" type="text" placeholder="ค้นหาหุ้น เช่น ADVANC, PTT, KBANK…" autocomplete="off" />
+    <button id="searchBtn">ค้นหา</button>
+  </div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══════════════════════════════════════════════════════════ -->
+<main id="main">
+
+  <!-- ── LANDING ─────────────────────────────────────────────────────────────── -->
+  <section id="landing">
+    <div class="market-status-bar" id="marketStatusBar">
+      <span id="marketTime">กำลังโหลด...</span>
+    </div>
+
+    <div class="ranking-tabs">
+      <button class="tab-btn active" data-type="mostActiveValue">มูลค่า</button>
+      <button class="tab-btn" data-type="mostActiveVolume">ปริมาณ</button>
+      <button class="tab-btn" data-type="topGainer">ราคาขึ้น</button>
+      <button class="tab-btn" data-type="topLoser">ราคาลง</button>
+    </div>
+
+    <div class="table-wrap">
+      <table class="ranking-table" id="rankingTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>หุ้น</th>
+            <th>ล่าสุด</th>
+            <th>เปลี่ยนแปลง</th>
+            <th>%</th>
+            <th>สูงสุด</th>
+            <th>ต่ำสุด</th>
+            <th>ปริมาณ (หุ้น)</th>
+            <th>มูลค่า (ล้านบ.)</th>
+          </tr>
+        </thead>
+        <tbody id="rankingBody">
+          <tr><td colspan="9" class="loading">⏳ กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── STOCK DETAIL ─────────────────────────────────────────────────────────── -->
+  <section id="stockDetail" class="hidden">
+    <button class="back-btn" id="backBtn">← กลับ</button>
+
+    <!-- Header -->
+    <div class="stock-header" id="stockHeader">
+      <div class="stock-title">
+        <h1 id="stockSymbol">–</h1>
+        <p id="stockName">–</p>
+      </div>
+      <div class="price-block">
+        <div class="price-main" id="priceMain">–</div>
+        <div class="price-change" id="priceChange">–</div>
+      </div>
+    </div>
+
+    <!-- Tab pills -->
+    <div class="detail-tabs">
+      <button class="detail-tab-btn active" data-pane="paneChart">ราคา & กราฟ</button>
+      <button class="detail-tab-btn" data-pane="paneTA">วิเคราะห์เทคนิค</button>
+      <button class="detail-tab-btn" data-pane="paneFund">ข้อมูลพื้นฐาน</button>
+      <button class="detail-tab-btn" data-pane="paneDW">Warrants (DW)</button>
+    </div>
+
+    <!-- ── PANE: Chart + key stats ─────────────────────────────────────────── -->
+    <div id="paneChart" class="detail-pane">
+      <!-- Key stats grid -->
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <!-- Period selector -->
+      <div class="chart-controls">
+        <span class="ctrl-label">ช่วงเวลา:</span>
+        <button class="period-btn" data-months="1">1เดือน</button>
+        <button class="period-btn active" data-months="3">3เดือน</button>
+        <button class="period-btn" data-months="6">6เดือน</button>
+        <button class="period-btn" data-months="12">1ปี</button>
+        <button class="period-btn" data-months="36">3ปี</button>
+      </div>
+      <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+      </div>
+      <div class="chart-container" style="height:120px">
+        <canvas id="volumeChart"></canvas>
+      </div>
+    </div>
+
+    <!-- ── PANE: Technical Analysis ────────────────────────────────────────── -->
+    <div id="paneTA" class="detail-pane hidden">
+      <div class="ta-grid" id="taGrid"></div>
+      <div class="ta-strategy" id="taStrategy"></div>
+    </div>
+
+    <!-- ── PANE: Fundamentals ──────────────────────────────────────────────── -->
+    <div id="paneFund" class="detail-pane hidden">
+      <div class="fund-grid" id="fundGrid"></div>
+    </div>
+
+    <!-- ── PANE: DW Table ──────────────────────────────────────────────────── -->
+    <div id="paneDW" class="detail-pane hidden">
+      <div class="dw-controls">
+        <label>
+          <input type="radio" name="dwFilter" value="all" checked /> ทั้งหมด
+        </label>
+        <label>
+          <input type="radio" name="dwFilter" value="Call" /> Call
+        </label>
+        <label>
+          <input type="radio" name="dwFilter" value="Put" /> Put
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table class="dw-table" id="dwTable">
+          <thead>
+            <tr>
+              <th>ชื่อ DW</th>
+              <th>ประเภท</th>
+              <th>ผู้ออก</th>
+              <th>ราคาล่าสุด</th>
+              <th>%เปลี่ยน</th>
+              <th>ราคาใช้สิทธิ</th>
+              <th>อัตราใช้สิทธิ</th>
+              <th>สถานะ</th>
+              <th>%OTM/ITM</th>
+              <th>EG</th>
+              <th>Delta</th>
+              <th>IV%</th>
+              <th>อายุ (วัน)</th>
+              <th>เริ่มซื้อขาย</th>
+              <th>สุดท้าย</th>
+              <th>จำนวนหน่วย</th>
+              <th>คงเหลือ%</th>
+            </tr>
+          </thead>
+          <tbody id="dwBody">
+            <tr><td colspan="17" class="loading">⏳ กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
