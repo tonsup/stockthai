@@ -2,9 +2,7 @@ services:
   - type: web
     name: stockthai
     runtime: node
-    buildCommand: npm install --cache /tmp/npm-cache --no-fund
+    buildCommand: npm install
     startCommand: node server.js
-    envVars:
-      - key: PORT
-        value: 10000
     plan: free
+    healthCheckPath: /
