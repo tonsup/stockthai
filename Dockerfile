@@ -16,7 +16,8 @@ COPY package.json ./
 COPY server.js ./
 COPY public/ ./public/
 
+# HuggingFace Spaces injects PORT=7860, local default is 3000
 ENV PORT=3000
-EXPOSE 3000
+EXPOSE 3000 7860
 
 CMD ["node", "server.js"]
